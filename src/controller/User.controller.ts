@@ -6,6 +6,7 @@ import { UserData } from '@/interface/User.interface';
 import { userLoginSchema, userRegisterSchema } from '@/schema/User.schema';
 import { ZodError } from 'zod';
 import { envconfig } from '@/config/env.config';
+import { TokenRequest } from '@/interface/Request.types';
 
 export const userController = {
     register: async (req: Request, res: Response): Promise<void> => {
@@ -23,6 +24,7 @@ export const userController = {
 
             if (foundEmail) {
                 res.status(400).json({ message: "Email is already in use." });
+                return
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,18 +37,21 @@ export const userController = {
             });
 
             res.status(201).json({ message: "User registered successfully", token: token });
+            return;
         } catch (error) {
             res.status(500).json({ error: "Registration failed", message: (error as Error).message });
         }
     },
     login: async (req: Request, res: Response): Promise<void> => {
         try {
+
             const userData = req.body as UserData;
             const { email, password } = userData;
 
             const parsed = userLoginSchema.safeParse(userData);
             if (!parsed.success) {
                 res.status(400).json({ errors: parsed.error.issues });
+                return;
             }
 
             const user = await User.findOne({ email });
@@ -58,6 +63,7 @@ export const userController = {
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (!passwordMatch) {
                 res.status(401).json({ error: "Authentication failed" });
+                return;
             }
 
 
@@ -67,8 +73,28 @@ export const userController = {
             });
 
             res.status(200).json({ token });
+            return
         } catch (error) {
             res.status(500).json({ error: "Login failed" });
         }
     },
+    getUser: async (req: TokenRequest, res: Response): Promise<void> => {
+        try {
+            const userId = req.userId;
+            if (!userId) {
+                res.status(401).json({ error: "Authentication failed" });
+                return;
+            }
+
+            const user = await User.findById(userId).select("-__v -createdAt -updatedAt -password -_id");
+            if (!user) {
+                res.status(401).json({ error: "Authentication failed" });
+                return;
+            }
+
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(500).json({ error: "Getting user failed" });
+        }
+    }
 };
