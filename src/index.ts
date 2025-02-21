@@ -2,7 +2,7 @@ import 'module-alias/register';
 import express from "express";
 import { connectToDatabase } from "./config/db";
 import dotenv from "dotenv"
-import apiRouter from "@/routes/Api.routes";
+import apiRouter from "@/routes/routes";
 import { envconfig } from './config/env.config';
 import cors from "cors";
 

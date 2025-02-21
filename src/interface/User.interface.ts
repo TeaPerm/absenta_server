@@ -4,7 +4,3 @@ export interface UserData {
     password: string;
     university: string[];
 }
-
-export interface registerRequest extends Request {
-    userData: UserData;
-}

@@ -1,0 +1,1 @@
+export const excludedFields : string = "-__v -createdAt -updatedAt -password -_id";

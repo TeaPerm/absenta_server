@@ -7,6 +7,7 @@ import { userLoginSchema, userRegisterSchema } from '@/schema/User.schema';
 import { ZodError } from 'zod';
 import { envconfig } from '@/config/env.config';
 import { TokenRequest } from '@/interface/Request.types';
+import { excludedFields } from '@/lib/utils';
 
 export const userController = {
     register: async (req: Request, res: Response): Promise<void> => {
@@ -56,16 +57,15 @@ export const userController = {
 
             const user = await User.findOne({ email });
             if (!user) {
-                res.status(401).json({ error: "Authentication failed" });
+                res.status(401).json({ error: "Authentication failed", message:"Rossz email vagy jelszó" });
                 return;
             }
 
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (!passwordMatch) {
-                res.status(401).json({ error: "Authentication failed" });
+                res.status(401).json({ error: "Authentication failed", message:"Rossz email vagy jelszó" });
                 return;
             }
-
 
             const secretKey = envconfig.auth['jwt-secret'];
             const token = jwt.sign({ userId: user._id }, secretKey, {
@@ -86,7 +86,7 @@ export const userController = {
                 return;
             }
 
-            const user = await User.findById(userId).select("-__v -createdAt -updatedAt -password -_id");
+            const user = await User.findById(userId).select(excludedFields);
             if (!user) {
                 res.status(401).json({ error: "Authentication failed" });
                 return;

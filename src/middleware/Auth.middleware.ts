@@ -2,9 +2,10 @@ import { envconfig } from '@/config/env.config';
 import { TokenRequest } from '@/interface/Request.types';
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 interface DecodedToken {
-    userId: string;
+    userId: mongoose.Types.ObjectId;
 }
 
 export const verifyToken = (req: TokenRequest, res: Response, next: NextFunction): void => {

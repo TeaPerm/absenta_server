@@ -1,5 +1,6 @@
 import { Request } from "express";
+import mongoose from "mongoose";
 
 export interface TokenRequest extends Request {
-    userId?: string;
+    userId?: mongoose.Types.ObjectId;
 }

@@ -1,11 +1,10 @@
 import { Router } from "express";
 import authRouter from "./Auth.routes";
+import courseRouter from "./Course.routes";
 
 const apiRouter = Router();
 
-apiRouter.get("/example", (req, res) => {
-    res.send("Example route");
-});
 apiRouter.use("/auth", authRouter);
+apiRouter.use("/course", courseRouter);
 
 export default apiRouter;
