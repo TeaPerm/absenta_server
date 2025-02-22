@@ -7,5 +7,8 @@ const authRouter = Router();
 authRouter.post("/register", userController.register);
 authRouter.post("/login", userController.login);
 authRouter.get("/user", verifyToken , userController.getUser);
+authRouter.get("/user/courses", verifyToken , userController.getCourses);
+authRouter.get("/user/courses/:university", verifyToken , userController.getCoursesByUniversity);
+authRouter.post("/user", verifyToken , userController.addUniversity);
 
 export default authRouter;

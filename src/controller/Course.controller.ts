@@ -60,5 +60,5 @@ export const courseController = {
         } catch (error) {
             res.status(500).json({ error: "Course creation failed", message: (error as Error).message });
         }
-    }
+    },
 };

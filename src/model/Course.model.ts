@@ -11,7 +11,6 @@ const courseModel = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     university: {
         type: String,
-        required: true,
         validate: {
             validator: function (value: string) {
                 return universities.hasOwnProperty(value);
