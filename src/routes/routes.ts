@@ -5,6 +5,6 @@ import courseRouter from "./Course.routes";
 const apiRouter = Router();
 
 apiRouter.use("/auth", authRouter);
-apiRouter.use("/course", courseRouter);
+apiRouter.use("/courses", courseRouter);
 
 export default apiRouter;

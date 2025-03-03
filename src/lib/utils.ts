@@ -1,4 +1,4 @@
-export const excludedFields : string = "-__v -createdAt -updatedAt -password -_id";
+export const excludedFields : string = "-__v -createdAt -updatedAt -password";
 
 
 import { User } from "@/model/User.model";
