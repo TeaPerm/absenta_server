@@ -6,7 +6,6 @@ export const courseCreateSchema = z
     .object({
         name: z.string().min(1),
         university: z.string(),
-        // Schedule fields
         dayOfWeek: z.enum(daysOfWeek),
         startTime: z.string(),
         endTime: z.string(),

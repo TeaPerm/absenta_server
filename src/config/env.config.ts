@@ -16,7 +16,7 @@ export interface IConfigVariables {
 dotenv.config();
 
 export const envconfig : IConfigVariables = {
-    port: parseInt(process.env.PORT!, 10) || 3000,
+    port: parseInt(process.env.PORT!, 10) || 3001,
     database: {
         username: process.env.DB_USERNAME || 'username',
         password: process.env.DB_PASSWORD || 'password',

@@ -12,4 +12,4 @@ export interface CourseData {
         neptun_code: string;
         name: string;
     }[];
-}
+}   
