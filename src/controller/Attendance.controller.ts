@@ -129,5 +129,97 @@ export const attendanceController = {
                 message: (error as Error).message 
             });
         }
+    },
+
+    getAttendanceById: async (req: TokenRequest, res: Response): Promise<void> => {
+        try {
+            const user = await authenticateUser(req, res);
+            if (!user) return;
+
+            const attendance = await Attendance.findById(req.params.id)
+                .populate('attendanceImage', 'name desc')
+                .populate('course_id', 'name');
+
+            if (!attendance) {
+                res.status(404).json({ error: "Attendance not found" });
+                return;
+            }
+
+            res.status(200).json(attendance);
+        } catch (error) {
+            res.status(500).json({ 
+                error: "Failed to fetch attendance", 
+                message: (error as Error).message 
+            });
+        }
+    },
+
+    updateAttendance: async (req: TokenRequest, res: Response): Promise<void> => {
+        try {
+            const user = await authenticateUser(req, res);
+            if (!user) return;
+
+            const attendance = await Attendance.findById(req.params.id)
+                .populate('course_id');
+
+            if (!attendance) {
+                res.status(404).json({ error: "Attendance not found" });
+                return;
+            }
+
+            const updateData: any = {};
+            
+            if (req.body.date) updateData.date = req.body.date;
+            if (req.body.students) updateData.students = req.body.students;
+            if (req.body.status) updateData.status = req.body.status;
+
+            const updatedAttendance = await Attendance.findByIdAndUpdate(
+                req.params.id,
+                updateData,
+                { new: true }
+            ).populate('attendanceImage', 'name desc');
+
+            res.status(200).json({
+                message: "Attendance updated successfully",
+                attendance: updatedAttendance
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                error: "Failed to update attendance", 
+                message: (error as Error).message 
+            });
+        }
+    },
+
+    deleteAttendance: async (req: TokenRequest, res: Response): Promise<void> => {
+        try {
+            const user = await authenticateUser(req, res);
+            if (!user) return;
+
+            const attendance = await Attendance.findById(req.params.id)
+                .populate('attendanceImage')
+                .populate('course_id');
+
+            if (!attendance) {
+                res.status(404).json({ error: "Attendance not found" });
+                return;
+            }
+
+
+            // Delete the associated image
+            if (attendance.attendanceImage) {
+                await Image.findByIdAndDelete(attendance.attendanceImage._id);
+            }
+
+            // Delete the attendance record
+            await Attendance.findByIdAndDelete(req.params.id);
+
+            res.status(200).json({ message: "Attendance deleted successfully" });
+        } catch (error) {
+            res.status(500).json({ 
+                error: "Failed to delete attendance", 
+                message: (error as Error).message 
+            });
+        }
     }
 };
