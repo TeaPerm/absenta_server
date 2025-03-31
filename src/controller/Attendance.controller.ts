@@ -6,6 +6,7 @@ import Attendance from "@/model/Attendance.model";
 import { attendanceCreateSchema } from "@/schema/Attendance.schema";
 import { ZodError } from "zod";
 import { authenticateUser } from "@/lib/utils";
+import { register } from "module";
 
 export const attendanceController = {
     createAttendance: async (req: TokenRequest, res: Response): Promise<void> => {
@@ -14,13 +15,19 @@ export const attendanceController = {
             if (!user) return;
 
             if (!req.file) {
-                res.status(400).json({ error: "Attendance image is required" });
+                res.status(400).json({ error: "attendanceImage is required" });
+                return;
+            }
+
+            if (!req.body.students) {
+                res.status(400).json({ error: "students data is required" });
                 return;
             }
 
             const attendanceData = {
                 course_id: req.body.course_id,
-                date: req.body.date
+                date: req.body.date,
+                students: JSON.parse(req.body.students)
             };
 
             const parsed = attendanceCreateSchema.safeParse(attendanceData);
@@ -52,11 +59,12 @@ export const attendanceController = {
             });
             await newImage.save();
 
-            // Create attendance record
+            // Create attendance record with students
             const attendance = new Attendance({
                 course_id: attendanceData.course_id,
                 date: new Date(attendanceData.date),
                 attendanceImage: newImage,
+                students: attendanceData.students,
                 status: 'uploaded'
             });
             await attendance.save();
@@ -66,7 +74,8 @@ export const attendanceController = {
                 attendance: {
                     id: attendance._id,
                     date: attendance.date,
-                    status: attendance.status
+                    status: attendance.status,
+                    students: attendance.students
                 }
             });
         } catch (error) {

@@ -4,10 +4,13 @@ import { verifyToken } from "@/middleware/Auth.middleware";
 import { attendanceController } from "@/controller/Attendance.controller";
 
 const attendanceRouter = Router();
+
+// Configure multer with larger limits
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+        fieldSize: 2 * 1024 * 1024  // 2MB limit for other fields
     }
 });
 
