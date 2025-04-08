@@ -16,4 +16,13 @@ export const attendanceCreateSchema = z
     })
     .strict();
 
+export const attendanceUpdateSchema = z
+    .object({
+        date: z.coerce.date().optional(),
+        students: z.array(studentAttendanceSchema).optional(),
+        status: z.enum(['uploaded', 'not_uploaded']).optional()
+    })
+    .strict();
+
 export type AttendanceCreateData = z.infer<typeof attendanceCreateSchema>;
+export type AttendanceUpdateData = z.infer<typeof attendanceUpdateSchema>;

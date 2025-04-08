@@ -19,4 +19,22 @@ export const courseCreateSchema = z
     })
     .strict()
 
+export const courseUpdateSchema = z
+    .object({
+        name: z.string().min(1).optional(),
+        university: z.string().optional(),
+        dayOfWeek: z.enum(daysOfWeek).optional(),
+        startTime: z.string().optional(),
+        endTime: z.string().optional(),
+        location: z.string().optional(),
+        students: z.array(
+            z.object({
+                neptun_code: z.string().length(6, "Neptun code must be exactly 6 characters"),
+                name: z.string().min(1),
+            })
+        ).optional()
+    })
+    .strict()
+
 export type CourseCreateData = z.infer<typeof courseCreateSchema>;
+export type CourseUpdateData = z.infer<typeof courseUpdateSchema>;
