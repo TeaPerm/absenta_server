@@ -1,33 +1,54 @@
+import mongoose, { Schema, Document } from "mongoose";
 import universities from '@/lib/universities';
-import mongoose from 'mongoose';
+
+export interface ICourse extends Document {
+    name: string;
+    university: string;
+    students: Array<{
+        neptun_code: string;
+        name: string;
+    }>;
+    user_id: mongoose.Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 const studentSchema = new mongoose.Schema({
-    neptun_code: { type: String, required: true },
-    name: { type: String, required: true },
-}, { _id: false });
-
-const courseModel = new mongoose.Schema({
-    name: { type: String, required: true },
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    university: {
+    neptun_code: {
         type: String,
+        required: true,
         validate: {
-            validator: function (value: string) {
-                return universities.hasOwnProperty(value);
+            validator: function(v: string) {
+                return v.length === 6;
             },
-            message: (props: { value: string }) => `${props.value} is not a valid university abbreviation`
+            message: 'Neptun code must be exactly 6 characters'
         }
     },
-    // Schedule fields added directly to the course model
-    dayOfWeek: { 
-        type: String, 
-        required: true,
-        enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    },
-    startTime: { type: String, required: true }, // eg: 08:00
-    endTime: { type: String, required: true },   // eg: 10:00
-    location: { type: String, required: false }, 
-    students: [studentSchema],
-}, { timestamps: true });
+    name: {
+        type: String,
+        required: true
+    }
+}, { _id: false });
 
-export const Course = mongoose.model('Course', courseModel);
+const CourseSchema: Schema = new Schema(
+    {
+        name: { type: String, required: true },
+        university: {
+            type: String,
+            required: true,
+            validate: {
+                validator: function(v: string) {
+                    return Object.keys(universities).includes(v);
+                },
+                message: 'Invalid university'
+            }
+        },
+        students: [studentSchema],
+        user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    },
+    {
+        timestamps: true,
+    }
+);
+
+export const Course = mongoose.model<ICourse>("Course", CourseSchema);

@@ -3,13 +3,14 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '@/model/User.model';
 import { UserData } from '@/interface/User.interface';
-import { userLoginSchema, userRegisterSchema } from '@/schema/User.schema';
+import { userLoginSchema, userRegisterSchema, userUpdateUniversitiesSchema } from '@/schema/User.schema';
 import { ZodError } from 'zod';
 import { envconfig } from '@/config/env.config';
 import { TokenRequest } from '@/interface/Request.types';
 import { authenticateUser, excludedFields } from '@/lib/utils';
 import universities from '@/lib/universities';
 import { Course } from '@/model/Course.model';
+import Attendance from '@/model/Attendance.model';
 
 export const userController = {
     register: async (req: Request, res: Response): Promise<void> => {
@@ -118,6 +119,62 @@ export const userController = {
             res.status(200).json({ message: "University added successfully" });
         } catch (error) {
             res.status(500).json({ error: "Adding university failed" });
+        }
+    },
+
+    updateUniversities: async (req: TokenRequest, res: Response): Promise<void> => {
+        try {
+            const user = await authenticateUser(req, res);
+            if (!user) return;
+
+            // Validate the request data
+            const parsed = userUpdateUniversitiesSchema.safeParse(req.body);
+            if (!parsed.success) {
+                res.status(400).json({ errors: (parsed.error as ZodError).issues });
+                return;
+            }
+
+            const { universities: newUniversities } = parsed.data;
+
+            // Find universities that were removed
+            const removedUniversities = user.university.filter(
+                uni => !newUniversities.includes(uni)
+            );
+
+            // Delete courses and attendances for removed universities
+            for (const university of removedUniversities) {
+                // Find all courses for this university
+                const courses = await Course.find({ 
+                    user_id: user._id,
+                    university: university
+                });
+
+                // Delete all attendances for these courses
+                for (const course of courses) {
+                    await Attendance.deleteMany({ course_id: course._id });
+                }
+
+                // Delete all courses for this university
+                await Course.deleteMany({ 
+                    user_id: user._id,
+                    university: university
+                });
+            }
+
+            // Update the user's universities
+            user.university = newUniversities;
+            await user.save();
+
+            res.status(200).json({ 
+                message: "Universities updated successfully",
+                universities: user.university,
+                deletedUniversities: removedUniversities
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                error: "Failed to update universities", 
+                message: (error as Error).message 
+            });
         }
     },
 

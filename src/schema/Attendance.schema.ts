@@ -8,18 +8,31 @@ const studentAttendanceSchema = z.object({
 
 export const attendanceCreateSchema = z
     .object({
-        course_id: z.string().refine((val) => /^[0-9a-fA-F]{24}$/.test(val), {
-            message: "Invalid course ID format"
-        }),
+        course_id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid course ID format"),
         date: z.coerce.date(),
-        students: z.array(studentAttendanceSchema).min(1, "At least one student is required")
+        students: z.array(
+            z.object({
+                student_name: z.string().min(1, "Student name is required"),
+                neptun_code: z.string().length(6, "Neptun code must be exactly 6 characters"),
+                status: z.enum(['Megjelent', 'Nem jelent meg', 'Késett', 'Igazoltan távol'], {
+                    errorMap: () => ({ message: "Invalid attendance status" })
+                })
+            })
+        )
     })
     .strict();
 
 export const attendanceUpdateSchema = z
     .object({
-        date: z.coerce.date().optional(),
-        students: z.array(studentAttendanceSchema).optional(),
+        students: z.array(
+            z.object({
+                student_name: z.string().min(1, "Student name is required"),
+                neptun_code: z.string().length(6, "Neptun code must be exactly 6 characters"),
+                status: z.enum(['Megjelent', 'Nem jelent meg', 'Késett', 'Igazoltan távol'], {
+                    errorMap: () => ({ message: "Invalid attendance status" })
+                })
+            })
+        ).optional(),
         status: z.enum(['uploaded', 'not_uploaded']).optional()
     })
     .strict();
