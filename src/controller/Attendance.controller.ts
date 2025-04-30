@@ -6,7 +6,6 @@ import Attendance from "@/model/Attendance.model";
 import { attendanceCreateSchema } from "@/schema/Attendance.schema";
 import { ZodError } from "zod";
 import { authenticateUser } from "@/lib/utils";
-import { register } from "module";
 
 export const attendanceController = {
     createAttendance: async (req: TokenRequest, res: Response): Promise<void> => {

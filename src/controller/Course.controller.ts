@@ -168,7 +168,6 @@ export const courseController = {
             // Initialize stats for each student in the course
             const studentStats = new Map();
             
-            // First, add all students from the course to the stats
             course.students.forEach(student => {
                 studentStats.set(student.name, {
                     student_name: student.name,
@@ -181,18 +180,13 @@ export const courseController = {
                 });
             });
 
-            // Then, process each attendance record
+            // process each attendance record
             attendances.forEach((attendance: any) => {
-                // Check if attendance has students array
                 if (attendance.students && Array.isArray(attendance.students)) {
-                    // Process each student in the attendance record
                     attendance.students.forEach((student: any) => {
-                        // Find the student in our stats map by name instead of neptun code
                         const stats = studentStats.get(student.student_name);
                         
-                        // If we found the student, update their stats
                         if (stats) {
-                            // Increment the appropriate counter based on status
                             if (student.status === 'Megjelent') {
                                 stats.attended++;
                             } else if (student.status === 'Nem jelent meg') {
@@ -207,7 +201,6 @@ export const courseController = {
                 }
             });
 
-            // Convert Map to array and sort by student name
             const statsArray = Array.from(studentStats.values())
                 .sort((a, b) => a.student_name.localeCompare(b.student_name));
 

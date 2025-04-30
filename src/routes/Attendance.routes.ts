@@ -5,7 +5,6 @@ import { attendanceController } from "@/controller/Attendance.controller";
 
 const attendanceRouter = Router();
 
-// Configure multer with larger limits
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
